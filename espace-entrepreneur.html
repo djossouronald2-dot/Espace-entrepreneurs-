@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mon Espace Entrepreneur</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F6F3;--sf:#FFFFFF;--ink:#16211D;--mut:#5E6B65;--ln:#DCE3DE;--ac:#1E2A78;--acx:#FFFFFF;--gd:#E8A200;--ok:#1F7A5A;--ko:#B3261E;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101613;--sf:#18211D;--ink:#EAF0EC;--mut:#9AA8A1;--ln:#2A3731;--ac:#8E9BFF;--acx:#101613;--gd:#F2B93B;--ok:#4FC79A;--ko:#FF8A80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101613;--sf:#18211D;--ink:#EAF0EC;--mut:#9AA8A1;--ln:#2A3731;--ac:#8E9BFF;--acx:#101613;--gd:#F2B93B;--ok:#4FC79A;--ko:#FF8A80;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding:14px 16px 0;border-bottom:1px solid var(--ln)}
+h1{font-size:22px;font-weight:800;margin:0 0 10px;letter-spacing:-.02em}
+nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav button{flex:0 0 auto;background:none;border:0;border-bottom:3px solid transparent;color:var(--mut);font:600 15px inherit;font-family:inherit;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-color:var(--gd)}
+main{max-width:720px;margin:0 auto;padding:16px}
+h2{font-size:18px;font-weight:800;margin:0 0 12px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.kpi{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:12px}
+.kpi small{color:var(--mut);display:block}
+.kpi b{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.row{display:flex;align-items:center;gap:10px;background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.row .g{flex:1;min-width:0}
+.row .g span{display:block;color:var(--mut);font-size:13px}
+.done .g b{text-decoration:line-through;color:var(--mut)}
+form{display:grid;gap:8px;margin-bottom:16px}
+.f2{grid-template-columns:1fr 1fr}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:11px 12px;min-height:44px}
+.btn{background:var(--ac);color:var(--acx);border:0;border-radius:8px;font:700 15px inherit;font-family:inherit;padding:11px 14px;min-height:44px;cursor:pointer}
+.x{background:none;border:0;color:var(--mut);font-size:22px;cursor:pointer;min-width:36px;min-height:44px}
+input[type=checkbox]{width:22px;height:22px;min-height:0;accent-color:var(--ok)}
+.in{color:var(--ok);font-weight:700}.out{color:var(--ko);font-weight:700}
+.bar{height:8px;background:var(--ln);border-radius:4px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--ok)}
+.empty{color:var(--mut);padding:16px 0}
+.chip{font-size:12px;font-weight:700;border-radius:20px;padding:3px 10px;background:var(--ln)}
+:focus-visible{outline:3px solid var(--gd);outline-offset:2px}
+.foot{text-align:center;color:var(--mut);font-size:12px;margin:28px 0 8px}
+</style>
+</head>
+<body>
+<header><h1>Mon espace entrepreneur</h1>
+<nav role="tablist" id="nav"></nav></header>
+<main id="m"></main>
+<script>
+var TABS=[["dash","Tableau de bord"],["task","Tâches"],["fin","Finances"],["cli","Clients"],["goal","Objectifs"],["stk","Stock"],["mk","Marketing"],["pl","Planner"],["wb","Bilans"],["kit","Modèles"],["pr","Prompts IA"]];
+var S={task:[],fin:[],cli:[],goal:[],stk:[],fav:[],mk:[],pl:{},wb:[]},tab="dash",KEY="espace_entrepreneur_v1";
+try{var r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function F(n){return Number(n).toLocaleString("fr-FR")+" FCFA"}
+function id(){return Date.now()+Math.floor(Math.random()*999)}
+var ST=["Prospect","Négociation","Client","Perdu"];
+function nav(){document.getElementById("nav").innerHTML=TABS.map(function(t){return '<button role="tab" aria-selected="'+(t[0]==tab)+'" data-tab="'+t[0]+'">'+t[1]+'</button>'}).join("")}
+function dash(){
+ var mo=new Date().toISOString().slice(0,7),inc=0,out=0;
+ S.fin.forEach(function(x){if(x.d.slice(0,7)==mo){x.type=="in"?inc+=x.amt:out+=x.amt}});
+ var open=S.task.filter(function(t){return!t.done}).length,neg=S.cli.filter(function(c){return c.st=="Négociation"}).length;
+ var h='<div class="kpis"><div class="kpi"><small>Revenus du mois</small><b class="in">'+F(inc)+'</b></div><div class="kpi"><small>Dépenses du mois</small><b class="out">'+F(out)+'</b></div><div class="kpi"><small>Bénéfice du mois</small><b>'+F(inc-out)+'</b></div><div class="kpi"><small>Tâches à faire</small><b>'+open+'</b></div></div>';
+ h+='<h2>À faire en priorité</h2>';
+ var t=S.task.filter(function(t){return!t.done}).slice(0,3);
+ h+=t.length?t.map(function(t){return '<div class="row"><div class="g"><b>'+esc(t.t)+'</b></div></div>'}).join(""):'<p class="empty">Aucune tâche en cours. Ajoutez-en dans l’onglet Tâches.</p>';
+ h+='<h2 style="margin-top:20px">Clients en négociation : '+neg+'</h2>';
+ h+='<h2 style="margin-top:20px">Produits en stock faible : '+S.stk.filter(function(x){return x.qty<=x.min}).length+'</h2>';
+ return h}
+function task(){
+ var h='<form data-f="task" class="f2"><input name="t" placeholder="Nouvelle tâche" required style="grid-column:1/-1"><button class="btn" style="grid-column:1/-1">Ajouter la tâche</button></form>';
+ h+=S.task.length?S.task.map(function(t){return '<div class="row'+(t.done?' done':'')+'"><input type="checkbox" data-a="chk" data-i="'+t.id+'" aria-label="Terminée"'+(t.done?' checked':'')+'><div class="g"><b>'+esc(t.t)+'</b></div><button class="x" data-a="del" data-k="task" data-i="'+t.id+'" aria-label="Supprimer">×</button></div>'}).join(""):'<p class="empty">Aucune tâche. Écrivez la première ci-dessus.</p>';
+ return h}
+function fin(){
+ var d=new Date().toISOString().slice(0,10);
+ var h='<form data-f="fin" class="f2"><input name="label" placeholder="Libellé (ex. Vente ebook)" required style="grid-column:1/-1"><input name="amt" type="number" min="1" inputmode="numeric" placeholder="Montant FCFA" required><select name="type"><option value="in">Revenu</option><option value="out">Dépense</option></select><input name="d" type="date" value="'+d+'" required style="grid-column:1/-1"><button class="btn" style="grid-column:1/-1">Enregistrer</button></form>';
+ var l=S.fin.slice().sort(function(a,b){return b.d.localeCompare(a.d)});
+ h+='<button class="btn" data-a="csv" style="margin-bottom:12px;background:var(--sf);color:var(--ink);border:1px solid var(--ln)">Copier en CSV</button>';
+ h+=l.length?l.map(function(x){return '<div class="row"><div class="g"><b>'+esc(x.label)+'</b><span>'+x.d+'</span></div><span class="'+x.type+'">'+(x.type=="in"?"+":"−")+F(x.amt)+'</span><button class="x" data-a="del" data-k="fin" data-i="'+x.id+'" aria-label="Supprimer">×</button></div>'}).join(""):'<p class="empty">Aucune opération. Enregistrez votre première vente ou dépense.</p>';
+ return h}
+function cli(){
+ var h='<form data-f="cli" class="f2"><input name="name" placeholder="Nom du client" required><input name="tel" type="tel" placeholder="WhatsApp / téléphone"><select name="st" style="grid-column:1/-1">'+ST.map(function(s){return '<option>'+s+'</option>'}).join("")+'</select><input name="note" placeholder="Note (besoin, offre proposée…)" style="grid-column:1/-1"><button class="btn" style="grid-column:1/-1">Ajouter le client</button></form>';
+ h+=S.cli.length?S.cli.map(function(c){return '<div class="row"><div class="g"><b>'+esc(c.name)+'</b> <span class="chip">'+esc(c.st)+'</span><span>'+esc(c.tel||"")+(c.note?" · "+esc(c.note):"")+'</span></div><button class="x" data-a="nxt" data-i="'+c.id+'" aria-label="Étape suivante" title="Étape suivante">›</button><button class="x" data-a="del" data-k="cli" data-i="'+c.id+'" aria-label="Supprimer">×</button></div>'}).join(""):'<p class="empty">Aucun client. Ajoutez vos prospects pour ne plus en perdre un seul.</p>';
+ return h}
+function goal(){
+ var h='<form data-f="goal" class="f2"><input name="t" placeholder="Objectif (ex. 500 000 FCFA ce mois)" required style="grid-column:1/-1"><input name="target" type="number" min="1" inputmode="numeric" placeholder="Cible" required><input name="cur" type="number" min="0" inputmode="numeric" placeholder="Déjà atteint" value="0"><button class="btn" style="grid-column:1/-1">Créer l’objectif</button></form>';
+ h+=S.goal.length?S.goal.map(function(g){var p=Math.min(100,Math.round(g.cur/g.target*100));return '<div class="row"><div class="g"><b>'+esc(g.t)+'</b><span>'+g.cur.toLocaleString("fr-FR")+' / '+g.target.toLocaleString("fr-FR")+' ('+p+' %)</span><div class="bar"><i style="width:'+p+'%"></i></div></div><button class="x" data-a="add" data-i="'+g.id+'" aria-label="Ajouter une progression" title="Ajouter">+</button><button class="x" data-a="del" data-k="goal" data-i="'+g.id+'" aria-label="Supprimer">×</button></div>'}).join(""):'<p class="empty">Aucun objectif. Fixez un chiffre et une échéance.</p>';
+ return h}
+function stk(){
+ var val=0,low=0;S.stk.forEach(function(x){val+=x.qty*x.cost;if(x.qty<=x.min)low++});
+ var h='<div class="kpis"><div class="kpi"><small>Valeur du stock</small><b>'+F(val)+'</b></div><div class="kpi"><small>Alertes stock faible</small><b class="'+(low?'out':'in')+'">'+low+'</b></div></div>';
+ h+='<form data-f="stk" class="f2"><input name="name" placeholder="Nom du produit" required style="grid-column:1/-1"><input name="cost" type="number" min="0" inputmode="numeric" placeholder="Coût d’achat" required><input name="price" type="number" min="0" inputmode="numeric" placeholder="Prix de vente" required><input name="qty" type="number" min="0" inputmode="numeric" placeholder="Quantité" required><input name="min" type="number" min="0" inputmode="numeric" placeholder="Seuil d’alerte"><button class="btn" style="grid-column:1/-1">Ajouter le produit</button></form>';
+ h+=S.stk.length?S.stk.map(function(x){return '<div class="row"><div class="g"><b>'+esc(x.name)+'</b> '+(x.qty<=x.min?'<span class="chip" style="background:var(--ko);color:var(--acx)">Stock faible</span>':'')+'<span>'+x.qty+' en stock · vente '+F(x.price)+'</span></div><button class="x" data-a="mv" data-i="'+x.id+'" aria-label="Entrée ou sortie de stock" title="Entrée / sortie">±</button><button class="x" data-a="del" data-k="stk" data-i="'+x.id+'" aria-label="Supprimer">×</button></div>'}).join(""):'<p class="empty">Aucun produit. Ajoutez votre premier article avec sa quantité.</p>';
+ return h}
+var PR=[
+["Post Facebook qui vend","Marketing","Rédige un post Facebook pour vendre [produit] à [client idéal] au [pays]. Structure : accroche, problème, solution, preuve, appel à l’action WhatsApp. Ton simple, moins de 120 mots."],
+["Relance client WhatsApp","Vente","Écris un message WhatsApp court pour relancer [prénom] qui n’a pas répondu à mon offre [offre] depuis [nombre] jours. Sans pression, avec une question facile à répondre."],
+["Plan de la semaine","Productivité","Voici mes tâches : [liste]. Classe-les par priorité et répartis-les du lundi au vendredi avec [heures] heures de travail par jour."],
+["Analyse de mes finances","Finance","Voici mes revenus et dépenses du mois : [données]. Identifie les 3 postes à réduire et propose un objectif de bénéfice réaliste."],
+["Idées de contenus TikTok","Contenu","Donne 15 idées de vidéos TikTok pour [activité] ciblant [audience], avec une accroche de 3 secondes pour chacune."],
+["Réponse à une objection de prix","Service client","Mon client dit : « [objection] ». Propose 3 réponses honnêtes et courtes qui valorisent [offre] sans baisser mon prix."]
+];
+function pr(){
+ var idx=PR.map(function(p,i){return i}).sort(function(a,b){return (S.fav.indexOf(String(b))>-1)-(S.fav.indexOf(String(a))>-1)});
+ var h='<p class="empty" style="padding-top:0">Remplacez les [champs] puis collez le prompt dans l’IA de votre choix.</p>';
+ return h+idx.map(function(i){var p=PR[i],f=S.fav.indexOf(String(i))>-1;return '<div class="row"><div class="g"><b>'+p[0]+'</b> <span class="chip">'+p[1]+'</span><span>'+p[2]+'</span></div><button class="x" data-a="fav" data-k="'+i+'" aria-label="Favori">'+(f?'★':'☆')+'</button><button class="btn" data-a="cp" data-k="'+i+'">Copier</button></div>'}).join("")}
+function exportCSV(){
+ var t="date;libelle;type;montant\n"+S.fin.map(function(x){return x.d+";"+String(x.label).replace(/;/g,",")+";"+(x.type=="in"?"recette":"depense")+";"+x.amt}).join("\n");
+ try{navigator.clipboard.writeText(t)}catch(e){prompt("Copiez le CSV :",t)}}
+function mk(){
+ var tot=0,sp=0;S.mk.forEach(function(x){tot+=x.bud;sp+=x.spent});
+ var h='<div class="kpis"><div class="kpi"><small>Budget prévu</small><b>'+F(tot)+'</b></div><div class="kpi"><small>Budget dépensé</small><b>'+F(sp)+'</b></div></div>';
+ h+='<form data-f="mk" class="f2"><input name="name" placeholder="Campagne ou publication" required style="grid-column:1/-1"><select name="ch"><option>Facebook</option><option>Instagram</option><option>WhatsApp</option><option>TikTok</option><option>E-mail</option><option>Autre</option></select><input name="d" type="date" required><input name="obj" placeholder="Objectif (ex. 20 ventes)" style="grid-column:1/-1"><input name="bud" type="number" min="0" inputmode="numeric" placeholder="Budget prévu en FCFA" style="grid-column:1/-1"><button class="btn" style="grid-column:1/-1">Planifier</button></form>';
+ h+='<p class="empty" style="padding:0 0 10px">Calendrier éditorial : saisissez vos résultats vous-même, aucune statistique n’est importée automatiquement.</p>';
+ var l=S.mk.slice().sort(function(a,b){return a.d.localeCompare(b.d)});
+ return h+(l.length?l.map(function(x){return '<div class="row"><div class="g"><b>'+esc(x.name)+'</b> <span class="chip">'+esc(x.ch)+'</span> <span class="chip">'+esc(x.st)+'</span><span>'+x.d+(x.obj?' · '+esc(x.obj):'')+' · '+x.spent.toLocaleString("fr-FR")+' / '+x.bud.toLocaleString("fr-FR")+' FCFA</span></div><button class="x" data-a="mks" data-i="'+x.id+'" aria-label="Changer le statut" title="Changer le statut">›</button><button class="x" data-a="sp" data-i="'+x.id+'" aria-label="Ajouter une dépense" title="Ajouter une dépense">+</button><button class="x" data-a="del" data-k="mk" data-i="'+x.id+'" aria-label="Supprimer">×</button></div>'}).join(""):'<p class="empty">Aucune publication planifiée. Ajoutez la prochaine ci-dessus.</p>')}
+var FL=[["vision","Ma vision à 12 mois","Où mon activité sera-t-elle dans un an ?"],["client","Mon client idéal","Qui est-il, que veut-il, où le trouver ?"],["offre","Mon offre et mon prix","Quel problème je résous, et pour combien ?"],["concu","Ma concurrence","Qui vend déjà la même chose, et en quoi suis-je différent ?"],["j30","Objectif à 30 jours","Une action mesurable"],["j60","Objectif à 60 jours","Une action mesurable"],["j90","Objectif à 90 jours","Une action mesurable"],["bud","Budget prévisionnel","Combien investir, combien espérer gagner ?"]];
+function plN(){return FL.filter(function(k){return S.pl[k[0]]&&S.pl[k[0]].trim()}).length}
+function pl(){var n=plN();var h='<h2>Mon plan d’action</h2><p id="pt" class="empty" style="padding:0 0 6px">'+n+' / '+FL.length+' sections remplies</p><div class="bar" style="margin-bottom:16px"><i id="pb" style="width:'+Math.round(n/FL.length*100)+'%"></i></div>';
+ return h+FL.map(function(k){return '<label style="display:block;margin-bottom:14px"><b>'+k[1]+'</b><span style="display:block;color:var(--mut);font-size:13px;margin-bottom:6px">'+k[2]+'</span><textarea rows="3" data-pl="'+k[0]+'">'+esc(S.pl[k[0]]||"")+'</textarea></label>'}).join("")}
+document.addEventListener("change",function(e){var k=e.target.dataset&&e.target.dataset.pl;if(!k)return;S.pl[k]=e.target.value;save();var n=plN();document.getElementById("pb").style.width=Math.round(n/FL.length*100)+"%";document.getElementById("pt").textContent=n+" / "+FL.length+" sections remplies"});
+function wb(){
+ var h='<form data-f="wb" class="f2"><select name="type" style="grid-column:1/-1"><option>Hebdomadaire</option><option>Mensuel</option></select><textarea name="win" rows="2" placeholder="Mes réussites de la période" required style="grid-column:1/-1"></textarea><textarea name="blk" rows="2" placeholder="Ce qui m’a bloqué" style="grid-column:1/-1"></textarea><textarea name="nxt" rows="2" placeholder="Mes 3 priorités pour la période suivante" required style="grid-column:1/-1"></textarea><button class="btn" style="grid-column:1/-1">Enregistrer le bilan</button></form>';
+ return h+(S.wb.length?S.wb.map(function(x){return '<div class="row"><div class="g"><b>'+esc(x.type)+' · '+x.d+'</b><span>Revenus de la période : '+F(x.ca)+'</span><span>Réussites : '+esc(x.win)+'</span><span>Blocages : '+esc(x.blk||"—")+'</span><span>Priorités : '+esc(x.nxt)+'</span></div><button class="x" data-a="del" data-k="wb" data-i="'+x.id+'" aria-label="Supprimer">×</button></div>'}).join(""):'<p class="empty">Aucun bilan. Faites le premier à la fin de la semaine.</p>')}
+var KT=[
+["Fiche produit","Vente","Nom : [produit]\nPour qui : [client idéal]\nProblème résolu : [problème]\nCe que vous recevez : [contenu, format]\nRésultat attendu : [bénéfice]\nPrix : [prix] FCFA · paiement Mobile Money\nAccès : [mode de livraison]"],
+["Structure de page de vente","Vente","1. Titre : le résultat promis à [client idéal]\n2. Le problème vécu, en 3 phrases\n3. La solution : [produit]\n4. Ce qui est inclus\n5. Preuves : résultats réels et témoignages autorisés\n6. Prix et garantie\n7. Appel à l’action : [verbe] maintenant"],
+["Message WhatsApp de présentation","WhatsApp","Je propose [produit] aux [client idéal] qui veulent [résultat]. Prix : [prix] FCFA, accès immédiat. Je t’envoie les détails ? Réponds OUI."],
+["Script de vidéo courte (30 s)","Vidéo","0-3 s : accroche sur le problème de [audience]\n3-10 s : pourquoi ce problème coûte cher\n10-22 s : montrer [produit] en action\n22-30 s : appel à l’action, lien en bio ou message WhatsApp"],
+["Demande de témoignage","Preuve sociale","Merci pour ton achat de [produit]. Si tu es satisfait, peux-tu m’écrire en 2 phrases le résultat obtenu ? Je ne le publierai qu’avec ton accord explicite."],
+["Appels à l’action","Vente","Commande maintenant sur WhatsApp\nTélécharge ton exemplaire aujourd’hui\nRéserve ta place avant [date]\nÉcris-moi « INFO » pour recevoir l’offre"],
+["Brief créatif","Design","Objectif : [objectif]\nCible : [audience]\nMessage principal : [une phrase]\nFormat : [carré ou vertical]\nCouleurs et logo : [charte]\nTexte sur le visuel : [8 mots maximum]\nAppel à l’action : [action]"]
+];
+function kit(){return '<input id="ks" type="search" placeholder="Rechercher un modèle" style="margin-bottom:10px"><p class="empty" style="padding:0 0 10px">Ce sont des modèles de texte à adapter, pas des visuels finis. Les témoignages ne se publient qu’avec l’accord de la personne.</p>'+KT.map(function(t,i){return '<div class="row kr"><div class="g"><b>'+t[0]+'</b> <span class="chip">'+t[1]+'</span><span style="white-space:pre-line">'+esc(t[2])+'</span></div><button class="btn" data-a="kc" data-k="'+i+'">Copier</button></div>'}).join("")}
+document.addEventListener("input",function(e){if(e.target.id!="ks")return;var q=e.target.value.toLowerCase();document.querySelectorAll(".kr").forEach(function(r){r.style.display=r.textContent.toLowerCase().indexOf(q)>-1?"":"none"})});
+var V={dash:dash,task:task,fin:fin,cli:cli,goal:goal,stk:stk,pr:pr,mk:mk,pl:pl,wb:wb,kit:kit};
+function draw(){nav();document.getElementById("m").innerHTML=V[tab]()+'<p class="foot">Vos données restent sur cet appareil.</p>'}
+document.addEventListener("click",function(e){
+ var b=e.target.closest("[data-tab],[data-a]");if(!b)return;
+ if(b.dataset.tab){tab=b.dataset.tab;draw();return}
+ var a=b.dataset.a,i=+b.dataset.i;
+ if(a=="del"){S[b.dataset.k]=S[b.dataset.k].filter(function(x){return x.id!=i})}
+ else if(a=="chk"){S.task.forEach(function(x){if(x.id==i)x.done=!x.done})}
+ else if(a=="kc"){var tx2=KT[+b.dataset.k][2];try{navigator.clipboard.writeText(tx2)}catch(e){prompt("Copiez le texte :",tx2)};return}
+ else if(a=="mks"){var SS=["Idée","Planifiée","Publiée"];S.mk.forEach(function(x){if(x.id==i)x.st=SS[(SS.indexOf(x.st)+1)%3]})}
+ else if(a=="sp"){var v2=parseInt(prompt("Montant dépensé à ajouter (FCFA) :"),10);if(!v2)return;S.mk.forEach(function(x){if(x.id==i)x.spent+=v2})}
+ else if(a=="mv"){var q=parseInt(prompt("Quantité (positive = entrée, négative = sortie) :"),10);if(!q)return;S.stk.forEach(function(x){if(x.id==i){x.qty=Math.max(0,x.qty+q)}})}
+ else if(a=="fav"){var ix=S.fav.indexOf(b.dataset.k);if(ix<0){S.fav.push(b.dataset.k)}else{S.fav.splice(ix,1)}}
+ else if(a=="cp"){var tx=PR[+b.dataset.k][2];try{navigator.clipboard.writeText(tx)}catch(e){prompt("Copiez le texte :",tx)};return}
+ else if(a=="csv"){exportCSV();return}
+ else if(a=="nxt"){S.cli.forEach(function(x){if(x.id==i)x.st=ST[(ST.indexOf(x.st)+1)%ST.length]})}
+ else if(a=="add"){var v=prompt("Montant à ajouter à la progression :");v=parseInt(v,10);if(!v)return;S.goal.forEach(function(x){if(x.id==i)x.cur+=v})}
+ save();draw()});
+document.addEventListener("submit",function(e){
+ e.preventDefault();var f=e.target,k=f.dataset.f,o={id:id()};
+ new FormData(f).forEach(function(v,n){o[n]=v});
+ if(k=="task")o.done=false;
+ if(k=="fin")o.amt=+o.amt;
+ if(k=="goal"){o.target=+o.target;o.cur=+o.cur||0}
+ if(k=="stk"){o.qty=+o.qty;o.cost=+o.cost;o.price=+o.price;o.min=+o.min||0}
+ if(k=="mk"){o.bud=+o.bud||0;o.spent=0;o.st="Idée"}
+ if(k=="wb"){o.d=new Date().toISOString().slice(0,10);var lim=new Date(Date.now()-(o.type=="Mensuel"?30:7)*864e5).toISOString().slice(0,10);o.ca=S.fin.filter(function(x){return x.type=="in"&&x.d>=lim}).reduce(function(s,x){return s+x.amt},0)}
+ S[k].unshift(o);save();draw()});
+draw();
+</script>
+</body>
+</html>
